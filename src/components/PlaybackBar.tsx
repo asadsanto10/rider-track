@@ -10,6 +10,8 @@ interface Props {
   onTogglePlay: () => void;
   onSpeedChange: (speed: number) => void;
   onReset: () => void;
+  onPrev: () => void;
+  onNext: () => void;
 }
 
 const SPEEDS = [1, 5, 10, 20];
@@ -23,6 +25,8 @@ export default function PlaybackBar({
   onTogglePlay,
   onSpeedChange,
   onReset,
+  onPrev,
+  onNext,
 }: Props) {
   if (!entries.length) return null;
 
@@ -34,13 +38,13 @@ export default function PlaybackBar({
     <div className="playback-bar">
       {/* Controls */}
       <div className="pb-controls">
+        <button className="pb-btn pb-btn-reset" onClick={onReset} title="Reset to start">⟳</button>
         <button
-          className="pb-btn pb-btn-reset"
-          onClick={onReset}
-          title="Reset to start"
-        >
-          ⟳
-        </button>
+          className="pb-btn pb-btn-step"
+          onClick={onPrev}
+          disabled={playbackIndex <= 0}
+          title="Previous point"
+        >‹</button>
         <button
           className={`pb-btn pb-btn-play ${isPlaying ? "playing" : ""}`}
           onClick={onTogglePlay}
@@ -48,6 +52,12 @@ export default function PlaybackBar({
         >
           {isPlaying ? "⏸" : "▶"}
         </button>
+        <button
+          className="pb-btn pb-btn-step"
+          onClick={onNext}
+          disabled={playbackIndex >= entries.length - 1}
+          title="Next point"
+        >›</button>
         <div className="pb-speed-group">
           {SPEEDS.map((s) => (
             <button

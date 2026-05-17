@@ -25,7 +25,16 @@ export default function StatsBar({ entries, gaps, medianInterval, fileName }: Pr
   const totalGapMs = gaps.reduce((s, g) => s + g.durationMs, 0);
   const totalMissed = gaps.reduce((s, g) => s + g.missedCount, 0);
 
-  const stats: { label: string; value: string | number; color: string }[] = [
+  const minBatteryEntry = entries.reduce((min, e) =>
+    (e.batteryHealth ?? 100) < (min.batteryHealth ?? 100) ? e : min
+  , entries[0]);
+  const minBattery = minBatteryEntry.batteryHealth ?? null;
+
+  const minBatteryColor = minBattery !== null
+    ? (minBattery <= 20 ? "#ef4444" : minBattery <= 50 ? "#f59e0b" : "#10b981")
+    : "#10b981";
+
+  const stats: { label: string; value: string | number; color: string; sub?: string }[] = [
     { label: "Total Updates", value: entries.length, color: "#3b82f6" },
     { label: "Time Span", value: durationStr, color: "#8b5cf6" },
     { label: "Avg Interval", value: `${(medianInterval / 1000).toFixed(1)}s`, color: "#06b6d4" },
@@ -34,6 +43,12 @@ export default function StatsBar({ entries, gaps, medianInterval, fileName }: Pr
     { label: "Missed Updates", value: totalMissed, color: "#ef4444" },
     { label: "Gap Time", value: humanDuration(totalGapMs), color: "#f59e0b" },
     { label: "Avg Battery", value: `${avgBattery}%`, color: "#10b981" },
+    ...(minBattery !== null ? [{
+      label: "Min Battery",
+      value: `${minBattery}%`,
+      color: minBatteryColor,
+      sub: format(minBatteryEntry.timestamp, "h:mm a (HH:mm)"),
+    }] : []),
   ];
 
   return (
@@ -48,10 +63,9 @@ export default function StatsBar({ entries, gaps, medianInterval, fileName }: Pr
       <div className="stats-grid">
         {stats.map((s) => (
           <div key={s.label} className="stat-card">
-            <div className="stat-value" style={{ color: s.color }}>
-              {s.value}
-            </div>
+            <div className="stat-value" style={{ color: s.color }}>{s.value}</div>
             <div className="stat-label">{s.label}</div>
+            {s.sub && <div className="stat-sublabel">{s.sub}</div>}
           </div>
         ))}
       </div>

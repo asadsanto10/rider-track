@@ -30,6 +30,9 @@ export default function App() {
   const [customLocations, setCustomLocations] = useState<CustomLocation[]>([]);
   const [selectedCustomId, setSelectedCustomId] = useState<string | null>(null);
 
+  // Sidebar visibility
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
   // Playback state
   const [playbackIndex, setPlaybackIndex] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -148,10 +151,26 @@ export default function App() {
                 }}
                 onSpeedChange={setPlaySpeed}
                 onReset={() => { setPlaybackIndex(0); setIsPlaying(false); }}
+                onPrev={() => { setPlaybackIndex((i) => Math.max(0, i - 1)); setIsPlaying(false); }}
+                onNext={() => { setPlaybackIndex((i) => Math.min(entries.length - 1, i + 1)); setIsPlaying(false); }}
               />
             </div>
 
-            <div className="side-panel">
+            <div className={`side-panel${sidebarOpen ? "" : " side-panel-collapsed"}`}>
+              <button
+                className="side-panel-toggle"
+                onClick={() => setSidebarOpen((o) => !o)}
+                title={sidebarOpen ? "Hide panel" : "Show panel"}
+              >
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  {sidebarOpen ? (
+                    <path d="M7.5 2L4 6l3.5 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                  ) : (
+                    <path d="M4.5 2L8 6l-3.5 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                  )}
+                </svg>
+              </button>
+              {sidebarOpen && (
               <div className="tab-bar">
                 {tabs.map((t) => (
                   <button
@@ -163,58 +182,61 @@ export default function App() {
                   </button>
                 ))}
               </div>
+              )}
 
-              <div className="tab-content">
-                {activeTab === "timeline" && (
-                  <Timeline
-                    entries={entries}
-                    selectedIndex={selectedIndex}
-                    onSelectEntry={(i) => { setSelectedIndex(i); setSelectedGapIndex(null); }}
-                    gaps={gaps}
-                  />
-                )}
-                {activeTab === "frequency" && (
-                  <div className="frequency-panel">
-                    <FrequencyChart buckets={buckets} avgPerMinute={avgPerMinute} />
-                    <div className="freq-summary">
-                      <div className="freq-stat">
-                        <span className="freq-num">{avgPerMinute}</span>
-                        <span className="freq-lbl">avg / min</span>
-                      </div>
-                      <div className="freq-stat">
-                        <span className="freq-num">
-                          {buckets.length ? Math.max(...buckets.map((b) => b.count)) : 0}
-                        </span>
-                        <span className="freq-lbl">peak / min</span>
-                      </div>
-                      <div className="freq-stat">
-                        <span className="freq-num">{(medianInterval / 1000).toFixed(1)}s</span>
-                        <span className="freq-lbl">median interval</span>
+              {sidebarOpen && (
+                <div className="tab-content">
+                  {activeTab === "timeline" && (
+                    <Timeline
+                      entries={entries}
+                      selectedIndex={selectedIndex}
+                      onSelectEntry={(i) => { setSelectedIndex(i); setSelectedGapIndex(null); }}
+                      gaps={gaps}
+                    />
+                  )}
+                  {activeTab === "frequency" && (
+                    <div className="frequency-panel">
+                      <FrequencyChart buckets={buckets} avgPerMinute={avgPerMinute} />
+                      <div className="freq-summary">
+                        <div className="freq-stat">
+                          <span className="freq-num">{avgPerMinute}</span>
+                          <span className="freq-lbl">avg / min</span>
+                        </div>
+                        <div className="freq-stat">
+                          <span className="freq-num">
+                            {buckets.length ? Math.max(...buckets.map((b) => b.count)) : 0}
+                          </span>
+                          <span className="freq-lbl">peak / min</span>
+                        </div>
+                        <div className="freq-stat">
+                          <span className="freq-num">{(medianInterval / 1000).toFixed(1)}s</span>
+                          <span className="freq-lbl">median interval</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
-                {activeTab === "gaps" && (
-                  <GapList
-                    gaps={gaps}
-                    medianInterval={medianInterval}
-                    selectedGapIndex={selectedGapIndex}
-                    onSelectGap={handleSelectGap}
-                  />
-                )}
-                {activeTab === "places" && (
-                  <CustomLocations
-                    locations={customLocations}
-                    onAdd={(loc) => setCustomLocations((prev) => [...prev, loc])}
-                    onRemove={(id) => {
-                      setCustomLocations((prev) => prev.filter((l) => l.id !== id));
-                      if (selectedCustomId === id) setSelectedCustomId(null);
-                    }}
-                    onSelect={setSelectedCustomId}
-                    selectedId={selectedCustomId}
-                  />
-                )}
-              </div>
+                  )}
+                  {activeTab === "gaps" && (
+                    <GapList
+                      gaps={gaps}
+                      medianInterval={medianInterval}
+                      selectedGapIndex={selectedGapIndex}
+                      onSelectGap={handleSelectGap}
+                    />
+                  )}
+                  {activeTab === "places" && (
+                    <CustomLocations
+                      locations={customLocations}
+                      onAdd={(loc) => setCustomLocations((prev) => [...prev, loc])}
+                      onRemove={(id) => {
+                        setCustomLocations((prev) => prev.filter((l) => l.id !== id));
+                        if (selectedCustomId === id) setSelectedCustomId(null);
+                      }}
+                      onSelect={setSelectedCustomId}
+                      selectedId={selectedCustomId}
+                    />
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -83,6 +83,7 @@ body { background: var(--bg); color: var(--text); font-family: system-ui, sans-s
 }
 .stat-value { font-size: 18px; font-weight: 700; line-height: 1.2; }
 .stat-label { font-size: 10px; color: var(--text-muted); margin-top: 2px; text-transform: uppercase; letter-spacing: .4px; }
+.stat-sublabel { font-size: 9px; color: var(--text-muted); margin-top: 1px; font-variant-numeric: tabular-nums; opacity: .8; }
 
 /* ===== Main layout ===== */
 .main-layout { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
@@ -98,7 +99,22 @@ body { background: var(--bg); color: var(--text); font-family: system-ui, sans-s
   background: var(--surface);
   border-left: 1px solid var(--border);
   display: flex; flex-direction: column; overflow: hidden;
+  transition: width .2s ease;
+  position: relative;
 }
+.side-panel-collapsed { width: 28px !important; }
+.side-panel-toggle {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  left: -14px; z-index: 20;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 50%; color: var(--text);
+  width: 26px; height: 26px; padding: 0;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,.35);
+  transition: color .15s, background .15s, box-shadow .15s;
+}
+.side-panel-toggle:hover { background: var(--blue); color: #fff; box-shadow: 0 2px 10px rgba(59,130,246,.5); }
+.side-panel-collapsed .side-panel-toggle { left: 1px; border-radius: 4px; width: 24px; height: 32px; top: 12px; transform: none; }
 
 /* ===== Tabs ===== */
 .tab-bar {
@@ -247,7 +263,9 @@ body { background: var(--bg); color: var(--text); font-family: system-ui, sans-s
   transition: all .15s;
   flex-shrink: 0;
 }
-.pb-btn:hover { background: var(--blue); border-color: var(--blue); }
+.pb-btn:hover:not(:disabled) { background: var(--blue); border-color: var(--blue); }
+.pb-btn:disabled { opacity: .35; cursor: not-allowed; }
+.pb-btn-step { font-size: 18px; font-weight: 700; }
 .pb-btn-play.playing { background: var(--yellow); border-color: var(--yellow); color: #000; }
 .pb-speed-group {
   display: flex;
