@@ -158,30 +158,7 @@ export default function MapView({
     return () => clearTimeout(t);
   }, [isFullscreen]);
 
-  // Swap tile layer when provider changes
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
-    if (tileLayerRef.current) map.removeLayer(tileLayerRef.current);
-    if (tileProvider === "google") {
-      tileLayerRef.current = L.tileLayer(
-        "https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}",
-        {
-          subdomains: ["0", "1", "2", "3"],
-          attribution: "© Google Maps",
-          maxNativeZoom: 21,
-          maxZoom: 23,
-        },
-      ).addTo(map);
-    } else {
-      tileLayerRef.current = L.tileLayer(
-        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        { attribution: "© OpenStreetMap contributors", maxNativeZoom: 19, maxZoom: 23 },
-      ).addTo(map);
-    }
-  }, [tileProvider]);
-
-  // Init map once
+  // Init map once — also seeds the default Google tile layer
   useEffect(() => {
     if (mapRef.current || !containerRef.current) return;
     const map = L.map(containerRef.current, { zoomControl: false, maxZoom: 23 }).setView(
@@ -190,8 +167,33 @@ export default function MapView({
     );
     L.control.zoom({ position: "bottomright" }).addTo(map);
     mapRef.current = map;
+
+    // Add default tile immediately so it's never blank on first load
+    tileLayerRef.current = L.tileLayer(
+      "https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}",
+      { subdomains: ["0", "1", "2", "3"], attribution: "© Google Maps", maxNativeZoom: 21, maxZoom: 23 },
+    ).addTo(map);
+
     setTimeout(() => map.invalidateSize(), 200);
   }, []);
+
+  // Swap tile layer when provider changes (skips on initial render — map not ready yet)
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    if (tileLayerRef.current) map.removeLayer(tileLayerRef.current);
+    if (tileProvider === "google") {
+      tileLayerRef.current = L.tileLayer(
+        "https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}",
+        { subdomains: ["0", "1", "2", "3"], attribution: "© Google Maps", maxNativeZoom: 21, maxZoom: 23 },
+      ).addTo(map);
+    } else {
+      tileLayerRef.current = L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        { attribution: "© OpenStreetMap contributors", maxNativeZoom: 19, maxZoom: 23 },
+      ).addTo(map);
+    }
+  }, [tileProvider]);
 
   // Redraw full path when entries change
   useEffect(() => {
