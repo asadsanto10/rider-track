@@ -161,7 +161,7 @@ export default function MapView({
   // Init map once — also seeds the default Google tile layer
   useEffect(() => {
     if (mapRef.current || !containerRef.current) return;
-    const map = L.map(containerRef.current, { zoomControl: false, maxZoom: 23 }).setView(
+    const map = L.map(containerRef.current, { zoomControl: false, maxZoom: 21 }).setView(
       [23.7426, 90.3824],
       16,
     );
@@ -171,7 +171,7 @@ export default function MapView({
     // Add default tile immediately so it's never blank on first load
     tileLayerRef.current = L.tileLayer(
       "https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}",
-      { subdomains: ["0", "1", "2", "3"], attribution: "© Google Maps", maxNativeZoom: 21, maxZoom: 23 },
+      { subdomains: ["0", "1", "2", "3"], attribution: "© Google Maps", maxNativeZoom: 21, maxZoom: 21 },
     ).addTo(map);
 
     setTimeout(() => map.invalidateSize(), 200);
@@ -185,12 +185,12 @@ export default function MapView({
     if (tileProvider === "google") {
       tileLayerRef.current = L.tileLayer(
         "https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}",
-        { subdomains: ["0", "1", "2", "3"], attribution: "© Google Maps", maxNativeZoom: 21, maxZoom: 23 },
+        { subdomains: ["0", "1", "2", "3"], attribution: "© Google Maps", maxNativeZoom: 21, maxZoom: 21 },
       ).addTo(map);
     } else {
       tileLayerRef.current = L.tileLayer(
         "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        { attribution: "© OpenStreetMap contributors", maxNativeZoom: 19, maxZoom: 23 },
+        { attribution: "© OpenStreetMap contributors", maxNativeZoom: 19, maxZoom: 19 },
       ).addTo(map);
     }
   }, [tileProvider]);
